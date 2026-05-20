@@ -10,10 +10,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
-    {
-
-    }
+    public function showLoginForm() {}
 
     public function login(Request $request)
     {
@@ -47,18 +44,6 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me(Request $request)
-    {
-        return response()->json([
-            'name' => $request->user()->name,
-            'email' => $request->user()->email,
-            'nickname' => $request->user()->nickname,
-            'gamesPlayed' => $request->user()->games_played,
-            'gamesWon' => $request->user()->games_won,
-            'timesImpostor' => $request->user()->times_impostor,
-        ]);
-    }
-
     public function register(Request $request)
     {
         $request->validate([
@@ -80,6 +65,63 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user,
             'token' => $token
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'name' => $request->user()->name,
+            'email' => $request->user()->email,
+            'nickname' => $request->user()->nickname,
+            'gamesPlayed' => $request->user()->games_played,
+            'gamesWon' => $request->user()->games_won,
+            'timesImpostor' => $request->user()->times_impostor,
+        ]);
+    }
+
+    /**
+     * Actualizar usuario
+     */
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'nickname' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6',
+        ]);
+
+        $user->update($request->only([
+            'name',
+            'nickname',
+            'email',
+        ]));
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+        }
+
+        return response()->json([
+            'message' => 'Usuario actualizado correctamente',
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Eliminar usuario
+     */
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Usuario eliminado correctamente',
         ]);
     }
 }
