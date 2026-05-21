@@ -18,12 +18,6 @@ class VerifyGameToken
     {
         $GAME_API_TOKEN = "Xon8uzJQxMwUjwntM7K3I1wOry4XDKX3l06SvPLq7Vwhg0vE7ma0Z8NBYethSLrV";
         
-        logger()->info('GAME TOKEN DEBUG', [
-            'header' => $request->header('X-GAME-TOKEN'),
-            // 'config' => config('services.game_token')
-            'config' => $GAME_API_TOKEN,
-        ]);
-
         $token = $request->header('X-GAME-TOKEN');
 
         if (!$token || $token !== $GAME_API_TOKEN) {
