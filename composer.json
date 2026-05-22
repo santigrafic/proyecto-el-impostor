@@ -11,6 +11,7 @@
         "laravel/reverb": "^1.10",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.10.1",
+        "mpdf/mpdf": "^8.3",
         "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {

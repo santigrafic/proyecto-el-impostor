@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Services\PdfService;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
@@ -125,5 +126,17 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Usuario eliminado correctamente',
         ]);
+    }
+
+     /**
+     * Imprimir info de usuario
+     */
+    public function profilePdf(Request $request, PdfService $pdfService)
+    {
+        $user_profile = $request->user();
+        $pdf = $pdfService->render('pdf.user_profile', compact('user_profile'));
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="perfil_el_impostor.pdf"');
     }
 }
