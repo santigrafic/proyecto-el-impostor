@@ -52,8 +52,7 @@ Route::apiResource('users', UserController::class);
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 Route::middleware('auth:sanctum')->post('/update', [AuthController::class, 'update']);
 Route::middleware('auth:sanctum')->delete('/destroy', [UserController::class, 'destroy']);
-
-Route::get('me/pdf', [UserController::class, 'profilePdf']);
+Route::middleware('auth:sanctum')->get('me/pdf', [UserController::class, 'profilePdf']);
 
 Route::get('ranking', [UserController::class, 'ranking']);
 
