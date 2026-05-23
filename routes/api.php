@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\StripeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 
@@ -56,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/update', [UserController::class, 'update']);
     Route::delete('/destroy', [UserController::class, 'destroy']);
     Route::get('me/pdf', [UserController::class, 'profilePdf']);
+    Route::post('/create-checkout-session', [StripeController::class, 'createSession']); // Subscription
 });
 
 // Login
@@ -66,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Register
 Route::post('/register', [AuthController::class, 'register']);
+
 
 // Ruta par hacer ping en render
 /*Route::get('/api/ping', function () {

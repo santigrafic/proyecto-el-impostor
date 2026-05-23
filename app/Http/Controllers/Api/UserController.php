@@ -38,6 +38,7 @@ class UserController extends Controller
             'gamesPlayed' => $request->user()->games_played,
             'gamesWon' => $request->user()->games_won,
             'timesImpostor' => $request->user()->times_impostor,
+            'isPremium' => $request->user()->subscribed('premium'),
         ]);
     }
 
@@ -100,6 +101,8 @@ class UserController extends Controller
             'nickname',
             'email',
         ]));
+
+        $user->isPremium = $user->subscribed('premium');
 
         return response()->json([
             'message' => 'Usuario actualizado correctamente',
