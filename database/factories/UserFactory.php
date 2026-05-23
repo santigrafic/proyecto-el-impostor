@@ -23,7 +23,7 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $gamesPlayed = fake()->numberBetween(0, 500);
+        $gamesPlayed = fake()->numberBetween(0, 50);
 
         return [
             'name' => fake()->name(),
@@ -31,9 +31,9 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'games_played' => fake()->numberBetween(0, 500),
+            'games_played' => $gamesPlayed,
             'games_won' => fake()->numberBetween(0, $gamesPlayed),
-            'times_impostor' => fake()->numberBetween(0, 500),
+            'times_impostor' => fake()->numberBetween(0, $gamesPlayed),
             'remember_token' => Str::random(10),
             'role_user' => 'user',
         ];

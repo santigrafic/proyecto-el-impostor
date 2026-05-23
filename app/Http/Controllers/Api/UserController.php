@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\RankingResource;
 
 class UserController extends Controller
 {
@@ -54,7 +55,13 @@ class UserController extends Controller
             ->take(16)
             ->get();
 
-        return response()->json($users);
+        // return RankingResource::collection($users);
+        return response()->json([
+            'data' => RankingResource::collection($users),
+            'meta' => [
+            'total' => $users->count()
+            ]
+        ]);
     }
 
     public function store(Request $request)
@@ -84,27 +91,15 @@ class UserController extends Controller
         ], 201);
     }
 
-    public function update(Request $request)
+    public function update(UpdateUserRequest $request)
     {
         $user = $request->user();
-
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'nickname' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:6',
-        ]);
 
         $user->update($request->only([
             'name',
             'nickname',
             'email',
         ]));
-
-        if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
-            $user->save();
-        }
 
         return response()->json([
             'message' => 'Usuario actualizado correctamente',

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class UpdateUserRequest extends FormRequest
 {
@@ -22,10 +23,12 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $userId = $this->user()->id;
+
         return [
-            'name' => 'required|string|min:6|max:20',
-            'nickname' => 'required|string|min:3|max:20|unique:users',
-            'email' => 'required|email|unique:users',
+            'name' => 'required|string|min:3|max:20',
+            'nickname' => 'required|string|min:3|max:20|unique:users,nickname,' . $userId,
+            'email' => 'required|email|unique:users,email,' . $userId,
         ];
     }
 
