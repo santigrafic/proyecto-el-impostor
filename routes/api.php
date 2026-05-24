@@ -6,7 +6,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StripeController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Laravel\Cashier\Http\Controllers\WebhookController;
 
 // Unirse a una room
 Route::post('/rooms/{roomId}/join', [RoomController::class, 'join']);
@@ -74,3 +75,20 @@ Route::post('/register', [AuthController::class, 'register']);
 /*Route::get('/api/ping', function () {
     return response()->json(['ok' => true]);
 });*/
+
+// Ruta webhook Stripe
+Route::post('/stripe/webhook', function (Request $request) {
+
+    try {
+
+        return app(WebhookController::class)
+            ->handleWebhook($request);
+
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
