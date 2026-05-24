@@ -17,9 +17,9 @@ class StripeController extends Controller
             'premium',
             $priceId
         )->checkout([
-            'success_url' => env('LOCAL_FRONT_END') . '/premium-success?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => env('FRONTEND_URL') . '/premium-success?session_id={CHECKOUT_SESSION_ID}',
 
-            'cancel_url' => env('LOCAL_FRONT_END') . '/subscription',
+            'cancel_url' => env('FRONTEND_URL') . '/subscription',
         ]);
 
         return response()->json([
