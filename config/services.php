@@ -37,4 +37,10 @@ return [
 
     'game_token' => env('GAME_API_TOKEN'),
 
+    'stripe' => [
+        'model' => App\Models\User::class,
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+    ],
+
 ];

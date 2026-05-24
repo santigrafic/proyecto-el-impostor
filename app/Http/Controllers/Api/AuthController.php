@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -25,6 +26,7 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
+        $user->isPremium = $user->subscribed('premium');
 
         return response()->json([
             'user' => $user,
@@ -52,6 +54,10 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
+        $user->createAsStripeCustomer();
+
+        $user->isPremium = $user->subscribed('premium');
+        
         return response()->json([
             'user' => $user,
             'token' => $token
