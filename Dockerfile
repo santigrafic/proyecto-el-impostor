@@ -23,8 +23,10 @@ WORKDIR /app
 # Copiar proyecto
 COPY . .
 
+RUN rm -rf bootstrap/cache/*.php
+
 # Instalar dependencias Laravel
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Permisos Laravel
 RUN chmod -R 775 storage bootstrap/cache
