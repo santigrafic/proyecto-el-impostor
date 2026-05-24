@@ -35,8 +35,12 @@ RUN chmod -R 775 storage bootstrap/cache
 EXPOSE 10000
 
 # Arranque del servidor
-CMD php artisan optimize:clear && \
-    rm -rf bootstrap/cache/*.php && \
+CMD rm -rf bootstrap/cache/* && \
+    php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
+    php artisan optimize:clear && \
     php artisan serve --host=0.0.0.0 --port=$PORT
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
