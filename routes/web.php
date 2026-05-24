@@ -33,4 +33,17 @@ Route::middleware('auth', 'role:admin')
     });
 
     //Ruta webhook Stripe
-Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook']);
+Route::post('/stripe/webhook', function (\Illuminate\Http\Request $request) {
+
+    try {
+
+        return app(\Laravel\Cashier\Http\Controllers\WebhookController::class)
+            ->handleWebhook($request);
+
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
