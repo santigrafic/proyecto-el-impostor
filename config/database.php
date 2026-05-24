@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Str;
-use PDO;
 
 return [
 
@@ -99,7 +98,7 @@ return [
             'sslmode' => env('DB_SSLMODE', 'prefer'),
 
             'options' => extension_loaded('pdo_pgsql') ? array_filter([
-                PDO::ATTR_TIMEOUT => 5,
+                \PDO::ATTR_TIMEOUT => 5,
             ]) : [],
         ],
 
