@@ -77,18 +77,12 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
 // Ruta webhook Stripe
-Route::post('/stripe/webhook', function (Request $request) {
+Route::post('/stripe/webhook', function () {
 
-    try {
-
-        return app(WebhookController::class)
-            ->handleWebhook($request);
-
-    } catch (\Throwable $e) {
-
-        return response()->json([
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-        ], 500);
-    }
+    return response()->json([
+        'default_connection' => config('database.default'),
+        'db_host' => config('database.connections.mysql.host'),
+        'env_connection' => env('DB_CONNECTION'),
+        'database_url' => env('DATABASE_URL'),
+    ]);
 });
