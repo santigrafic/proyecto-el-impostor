@@ -45,11 +45,12 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => env('DB_HOST', 'yamabiko.proxy.rlwy.net'),
-            'port' => env('DB_PORT', '37470'),
-            'database' => env('DB_DATABASE', 'railway'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', 'ppFEmoWNCOaKBQisySyxGHeHuJYhocRO'),
+            'url' => env('DB_URL'),
+            'host' => /*env('DB_HOST', '127.0.0.1')*/'yamabiko.proxy.rlwy.net',
+            'port' => /*env('DB_PORT', '3306')*/'37470',
+            'database' => /*env('DB_DATABASE', 'laravel')*/'railway',
+            'username' => /*env('DB_USERNAME', 'root')*/'root',
+            'password' => /*env('DB_PASSWORD', '')*/'ppFEmoWNCOaKBQisySyxGHeHuJYhocRO',
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
