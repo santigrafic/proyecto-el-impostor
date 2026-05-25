@@ -10,38 +10,57 @@ use Carbon\Carbon;
 class StripeWebhookController extends Controller
 {
     public function handleWebhook(Request $request)
-    {
+{
+    try {
+        $payload = json_decode($request->getContent(), true);
+
+        // 🔍 info de configuración de BD
+        $dbInfo = [
+            'default_connection' => config('database.default'),
+            'mysql_host' => config('database.connections.mysql.host') ?? null,
+            'mysql_db' => config('database.connections.mysql.database') ?? null,
+            'mysql_user' => config('database.connections.mysql.username') ?? null,
+        ];
+
+        // 🔍 test real de conexión (clave)
+        $dbTest = null;
         try {
-
-            $payload = json_decode($request->getContent(), true);
-
-            switch ($payload['type']) {
-
-                case 'customer.subscription.created':
-                    $this->handleSubscriptionCreated($payload);
-                    break;
-
-                case 'customer.subscription.updated':
-                    $this->handleSubscriptionUpdated($payload);
-                    break;
-
-                case 'customer.subscription.deleted':
-                    $this->handleSubscriptionDeleted($payload);
-                    break;
-            }
-
-            return response()->json([
-                'success' => true
-            ]);
-        } catch (\Throwable $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ], 500);
+            $dbTest = DB::select('SELECT 1 as ok');
+        } catch (\Throwable $dbError) {
+            $dbTest = [
+                'error' => $dbError->getMessage(),
+            ];
         }
+
+        // 🔍 intento de leer users (solo lectura)
+        $userSample = null;
+        try {
+            $userSample = DB::table('users')
+                ->select('id', 'stripe_id')
+                ->limit(3)
+                ->get();
+        } catch (\Throwable $e) {
+            $userSample = [
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        return response()->json([
+            'ok' => true,
+            'stripe_type' => $payload['type'] ?? null,
+
+            'db_config' => $dbInfo,
+            'db_test' => $dbTest,
+            'user_sample' => $userSample,
+        ]);
+
+    } catch (\Throwable $e) {
+        return response()->json([
+            'ok' => false,
+            'fatal_error' => $e->getMessage(),
+        ], 500);
     }
+}
 
     private function handleSubscriptionCreated(array $payload)
 {
