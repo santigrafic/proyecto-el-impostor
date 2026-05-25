@@ -45,66 +45,72 @@ class StripeWebhookController extends Controller
 
     private function handleSubscriptionCreated(array $payload)
 {
-    $data = $payload['data']['object'] ?? null;
+    $data = $payload['data']['object'] ?? [];
 
-    if (!$data) {
-        throw new \Exception('Payload inválido: falta data.object');
-    }
+    DB::beginTransaction();
 
-    // 1. Buscar usuario por stripe_id
-    $user = DB::table('users')
-        ->where('stripe_id', $data['customer'])
-        ->first();
+    try {
 
-    if (!$user) {
-        // IMPORTANTE: no romper producción por esto
-        throw new \Exception('Usuario no encontrado para customer: ' . $data['customer']);
-    }
+        $user = DB::table('users')
+            ->where('stripe_id', $data['customer'] ?? null)
+            ->first();
 
-    // 2. Validar items
-    $firstItem = $data['items']['data'][0] ?? null;
+        if (!$user) {
+            DB::rollBack();
+            return; // no rompemos webhook
+        }
 
-    if (!$firstItem) {
-        throw new \Exception('Subscription sin items');
-    }
+        $firstItem = $data['items']['data'][0] ?? null;
 
-    // 3. IDEMPOTENCIA (Stripe reintenta SIEMPRE)
-    $existing = DB::table('subscriptions')
-        ->where('stripe_id', $data['id'])
-        ->first();
+        if (!$firstItem) {
+            DB::rollBack();
+            return;
+        }
 
-    if ($existing) {
-        return; // ya procesado
-    }
+        // evitar duplicados
+        $exists = DB::table('subscriptions')
+            ->where('stripe_id', $data['id'])
+            ->exists();
 
-    // 4. Insert subscription
-    $subscriptionId = DB::table('subscriptions')->insertGetId([
-        'user_id' => $user->id,
-        'type' => $data['metadata']['type'] ?? 'default',
-        'stripe_id' => $data['id'],
-        'stripe_status' => $data['status'],
-        'stripe_price' => $firstItem['price']['id'] ?? null,
-        'quantity' => $firstItem['quantity'] ?? 1,
-        'trial_ends_at' => !empty($data['trial_end'])
-            ? Carbon::createFromTimestamp($data['trial_end'])
-            : null,
-        'ends_at' => null,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+        if ($exists) {
+            DB::rollBack();
+            return;
+        }
 
-    // 5. Insert items (seguro)
-    foreach (($data['items']['data'] ?? []) as $item) {
-
-        DB::table('subscription_items')->insert([
-            'subscription_id' => $subscriptionId,
-            'stripe_id' => $item['id'],
-            'stripe_product' => $item['price']['product'] ?? null,
-            'stripe_price' => $item['price']['id'] ?? null,
-            'quantity' => $item['quantity'] ?? 1,
+        $subscriptionId = DB::table('subscriptions')->insertGetId([
+            'user_id' => $user->id,
+            'type' => $data['metadata']['type'] ?? 'default',
+            'stripe_id' => $data['id'],
+            'stripe_status' => $data['status'],
+            'stripe_price' => $firstItem['price']['id'] ?? null,
+            'quantity' => $firstItem['quantity'] ?? 1,
+            'trial_ends_at' => isset($data['trial_end'])
+                ? Carbon::createFromTimestamp($data['trial_end'])
+                : null,
+            'ends_at' => null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        foreach ($data['items']['data'] ?? [] as $item) {
+            DB::table('subscription_items')->insert([
+                'subscription_id' => $subscriptionId,
+                'stripe_id' => $item['id'] ?? null,
+                'stripe_product' => $item['price']['product'] ?? null,
+                'stripe_price' => $item['price']['id'] ?? null,
+                'quantity' => $item['quantity'] ?? 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        DB::commit();
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+
+        // MUY IMPORTANTE: no romper webhook
+        return;
     }
 }
 
