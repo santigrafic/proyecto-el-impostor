@@ -10,38 +10,25 @@ use Carbon\Carbon;
 class StripeWebhookController extends Controller
 {
     public function handleWebhook(Request $request)
-    {
-        try {
+{
+    try {
+        $payload = json_decode($request->getContent(), true);
 
-            $payload = json_decode($request->getContent(), true);
-
-            switch ($payload['type']) {
-
-                case 'customer.subscription.created':
-                    $this->handleSubscriptionCreated($payload);
-                    break;
-
-                case 'customer.subscription.updated':
-                    $this->handleSubscriptionUpdated($payload);
-                    break;
-
-                case 'customer.subscription.deleted':
-                    $this->handleSubscriptionDeleted($payload);
-                    break;
-            }
-
-            return response()->json([
-                'success' => true
-            ]);
-        } catch (\Throwable $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ], 500);
-        }
+        return response()->json([
+            'ok' => true,
+            'type' => $payload['type'] ?? null,
+            'stripe_customer' => $payload['data']['object']['customer'] ?? null,
+            'subscription_id' => $payload['data']['object']['id'] ?? null,
+            'status' => $payload['data']['object']['status'] ?? null,
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'ok' => false,
+            'error' => $e->getMessage(),
+            'payload_raw' => $request->getContent(),
+        ], 500);
     }
+}
 
     private function handleSubscriptionCreated(array $payload)
     {
