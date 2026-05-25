@@ -11,37 +11,14 @@ class StripeWebhookController extends Controller
 {
     public function handleWebhook(Request $request)
     {
-        try {
+        {
+        $payload = json_decode($request->getContent(), true);
 
-            $payload = json_decode($request->getContent(), true);
-
-            switch ($payload['type']) {
-
-                case 'customer.subscription.created':
-                    $this->handleSubscriptionCreated($payload);
-                    break;
-
-                case 'customer.subscription.updated':
-                    $this->handleSubscriptionUpdated($payload);
-                    break;
-
-                case 'customer.subscription.deleted':
-                    $this->handleSubscriptionDeleted($payload);
-                    break;
-            }
-
-            return response()->json([
-                'success' => true
-            ]);
-
-        } catch (\Throwable $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ], 500);
-        }
+        return response()->json([
+            'ok' => true,
+            'type' => $payload['type'] ?? null,
+        ], 200);
+    }
     }
 
     private function handleSubscriptionCreated(array $payload)
