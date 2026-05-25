@@ -63,6 +63,17 @@ class StripeWebhookController extends Controller
                 'mysql_host' => config('database.connections.mysql.host') ?? null,
                 'mysql_db' => config('database.connections.mysql.database') ?? null,
                 'app_env' => config('app.env'),
+                'port' => config('database.connections.mysql.port') ?? null,
+                'database' => config('database.connections.mysql.database') ?? null,
+                'username' => config('database.connections.mysql.username') ?? null,
+                'password' => config('database.connections.mysql.password') ?? null,
+
+                'urlENV' => env('DB_URL'),
+                'hostENV' => env('DB_HOST', '127.0.0.1'),
+                'portENV' => env('DB_PORT', '3306'),
+                'databaseENV' => env('DB_DATABASE', 'laravel'),
+                'usernameENV' => env('DB_USERNAME', 'root'),
+                'passwordENV' => env('DB_PASSWORD', ''),
 
                 // 🔍 DEBUG RAW (muy importante)
                 'raw_keys' => array_keys($payload),
