@@ -5,9 +5,10 @@ use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StripeController;
-use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Controllers\WebhookController;
+use Illuminate\Http\Request;
+
 
 // Unirse a una room
 Route::post('/rooms/{roomId}/join', [RoomController::class, 'join']);
@@ -77,4 +78,23 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
 // Ruta webhook Stripe
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+Route::post('/stripe/webhook', function (Request $request) {
+
+    $payload = json_decode($request->getContent(), true);
+
+    return response()->json([
+        'debug' => true,
+        'received_at' => now()->toDateTimeString(),
+
+        'type' => $payload['type'] ?? null,
+
+        'customer' => $payload['data']['object']['customer'] ?? null,
+        'subscription_id' => $payload['data']['object']['id'] ?? null,
+
+        'status' => $payload['data']['object']['status'] ?? null,
+
+        'items' => $payload['data']['object']['items']['data'] ?? null,
+
+        'full_payload' => $payload,
+    ], 200);
+});
