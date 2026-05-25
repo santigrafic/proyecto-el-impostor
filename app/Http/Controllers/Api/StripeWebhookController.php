@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class StripeWebhookController extends Controller
 {
-    /*public function handleWebhook(Request $request)
+    public function handleWebhook(Request $request)
     {
         try {
 
@@ -41,10 +41,10 @@ class StripeWebhookController extends Controller
                 'trace' => $e->getTraceAsString(),
             ], 500);
         }
-    }*/
+    }
 
     // DEBUG
-    public function handleWebhook(Request $request)
+    /*public function handleWebhook(Request $request)
     {
         try {
             $payload = json_decode($request->getContent(), true);
@@ -64,7 +64,6 @@ class StripeWebhookController extends Controller
                 'mysql_db' => config('database.connections.mysql.database') ?? null,
                 'app_env' => config('app.env'),
                 'port' => config('database.connections.mysql.port') ?? null,
-                'database' => config('database.connections.mysql.database') ?? null,
                 'username' => config('database.connections.mysql.username') ?? null,
                 'password' => config('database.connections.mysql.password') ?? null,
 
@@ -88,7 +87,7 @@ class StripeWebhookController extends Controller
                 'trace' => $e->getTraceAsString(),
             ], 500);
         }
-    }
+    }*/
 
     private function handleSubscriptionCreated(array $payload)
     {
