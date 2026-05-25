@@ -28,6 +28,9 @@ RUN rm -rf bootstrap/cache/*.php
 # Instalar dependencias Laravel
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
+RUN rm -rf bootstrap/cache/*.php
+RUN php artisan optimize:clear
+
 # Permisos Laravel
 RUN chmod -R 775 storage bootstrap/cache
 
