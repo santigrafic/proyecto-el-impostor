@@ -5,8 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminGameController;
 use Laravel\Cashier\Http\Controllers\WebhookController;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,3 +31,6 @@ Route::middleware('auth', 'role:admin')
         Route::resource('users', AdminUserController::class);
         Route::resource('games', AdminGameController::class);
     });
+
+    // Ruta webhook Stripe
+    Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook']);
