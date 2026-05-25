@@ -76,16 +76,4 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
     // Ruta webhook Stripe
-//Route::post('/stripe/impostorwebhook', [StripeWebhookController::class, 'handleWebhook']);
-
-Route::post('/stripe/impostorwebhook', function (\Illuminate\Http\Request $request) {
-
-    return response()->json([
-        'ok' => true,
-        'type' => $request->input('type'),
-        'has_data' => $request->has('data'),
-        'has_object' => $request->has('data.object'),
-        'raw_length' => strlen($request->getContent()),
-        'keys' => array_keys($request->all()),
-    ]);
-});
+Route::post('/stripe/impostorwebhook', [StripeWebhookController::class, 'handleWebhook']);
