@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StripeController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 
 // Unirse a una room
