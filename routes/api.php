@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StripeController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Unirse a una room
@@ -73,3 +74,6 @@ Route::post('/register', [AuthController::class, 'register']);
 /*Route::get('/api/ping', function () {
     return response()->json(['ok' => true]);
 });*/
+
+    // Ruta webhook Stripe
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
