@@ -5,11 +5,9 @@ use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StripeController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Controllers\WebhookController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
 
 // Unirse a una room
 Route::post('/rooms/{roomId}/join', [RoomController::class, 'join']);
@@ -79,30 +77,4 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
 // Ruta webhook Stripe
-Route::post('/stripe/webhook', function (Request $request) {
-
-    try {
-        $payload = json_decode($request->getContent(), true);
-
-        // Intento mínimo de acceso a DB (para forzar error si existe)
-        $user = DB::table('users')
-            ->where('stripe_id', $payload['data']['object']['customer'] ?? null)
-            ->first();
-
-        return response()->json([
-            'ok' => true,
-            'payload' => $payload,
-            'user_found' => $user,
-        ]);
-
-    } catch (\Throwable $e) {
-
-        return response()->json([
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'payload' => $payload ?? null,
-            'db_default' => config('database.default'),
-            'db_host' => config('database.connections.pgsql.host'),
-        ], 500);
-    }
-});
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
