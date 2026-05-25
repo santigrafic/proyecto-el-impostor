@@ -23,13 +23,14 @@ WORKDIR /app
 # Copiar proyecto
 COPY . .
 
-RUN rm -rf bootstrap/cache/*.php
+# LIMPIEZA TOTAL DE CACHE LARAVEL (CRÍTICO)
+RUN rm -rf bootstrap/cache/*.php \
+    storage/framework/cache/* \
+    storage/framework/sessions/* \
+    storage/framework/views/*
 
-# Instalar dependencias Laravel
+# Instalar dependencias SIN scripts (evita caches raros)
 RUN composer install --no-dev --optimize-autoloader --no-scripts
-
-RUN rm -rf bootstrap/cache/*.php
-RUN php artisan optimize:clear
 
 # Permisos Laravel
 RUN chmod -R 775 storage bootstrap/cache
@@ -37,13 +38,7 @@ RUN chmod -R 775 storage bootstrap/cache
 # Puerto Render
 EXPOSE 10000
 
-# Arranque del servidor
-CMD rm -rf bootstrap/cache/* && \
-    php artisan config:clear && \
-    php artisan cache:clear && \
-    php artisan route:clear && \
-    php artisan view:clear && \
-    php artisan optimize:clear && \
-    php artisan serve --host=0.0.0.0 --port=$PORT
+# ARRANQUE LIMPIO (SIN ARTISAN CACHE)
+CMD php artisan serve --host=0.0.0.0 --port=$PORT
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
