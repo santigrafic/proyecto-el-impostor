@@ -76,4 +76,3 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
     // Ruta webhook Stripe
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
