@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\StripeController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 
@@ -76,4 +77,4 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
 // Ruta webhook Stripe
-Route::post('/stripe/webhook', [WebhookController::class, 'handleWebhook']);
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
