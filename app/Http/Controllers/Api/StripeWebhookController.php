@@ -26,15 +26,18 @@ class StripeWebhookController extends Controller
 
         return new Response('No handler', 200);
         } catch (\Throwable $e) {
-
-        return response()->json([
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'payload' => $payload ?? null,
-            'db_default' => config('database.default'),
-            'db_host' => config('database.connections.mysql.host'),
-        ], 500);
-    }
+            return response()->json([
+                'ok' => false,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'payload' => $payload ?? null,
+                'db_default' => config('database.default'),
+                'mysql_host' => config('database.connections.mysql.host') ?? null,
+                'pgsql_host' => config('database.connections.pgsql.host') ?? null,
+            ], 500, [
+                'Content-Type' => 'application/json'
+            ]);
+        }
     }
 
     protected function handleCustomerSubscriptionCreated(array $payload)
