@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Controllers\WebhookController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // Unirse a una room
 Route::post('/rooms/{roomId}/join', [RoomController::class, 'join']);
@@ -77,4 +78,5 @@ Route::post('/register', [AuthController::class, 'register']);
 });*/
 
 // Ruta webhook Stripe
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class]);
