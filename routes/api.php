@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\StripeController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 
 // Unirse a una room
@@ -80,21 +81,28 @@ Route::post('/register', [AuthController::class, 'register']);
 // Ruta webhook Stripe
 Route::post('/stripe/webhook', function (Request $request) {
 
-    $payload = json_decode($request->getContent(), true);
+    try {
+        $payload = json_decode($request->getContent(), true);
 
-    return response()->json([
-        'debug' => true,
-        'received_at' => now()->toDateTimeString(),
+        // Intento mínimo de acceso a DB (para forzar error si existe)
+        $user = DB::table('users')
+            ->where('stripe_id', $payload['data']['object']['customer'] ?? null)
+            ->first();
 
-        'type' => $payload['type'] ?? null,
+        return response()->json([
+            'ok' => true,
+            'payload' => $payload,
+            'user_found' => $user,
+        ]);
 
-        'customer' => $payload['data']['object']['customer'] ?? null,
-        'subscription_id' => $payload['data']['object']['id'] ?? null,
+    } catch (\Throwable $e) {
 
-        'status' => $payload['data']['object']['status'] ?? null,
-
-        'items' => $payload['data']['object']['items']['data'] ?? null,
-
-        'full_payload' => $payload,
-    ], 200);
+        return response()->json([
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'payload' => $payload ?? null,
+            'db_default' => config('database.default'),
+            'db_host' => config('database.connections.pgsql.host'),
+        ], 500);
+    }
 });
