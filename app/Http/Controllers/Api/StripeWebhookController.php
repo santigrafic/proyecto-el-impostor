@@ -14,6 +14,7 @@ class StripeWebhookController extends Controller
 {
     public function handleWebhook(Request $request)
     {
+        try {
         $payload = json_decode($request->getContent(), true);
         $method = 'handle' . Str::studly(str_replace('.', '_', $payload['type']));
 
@@ -24,11 +25,21 @@ class StripeWebhookController extends Controller
         }
 
         return new Response('No handler', 200);
+        } catch (\Throwable $e) {
+
+        return response()->json([
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'payload' => $payload ?? null,
+            'db_default' => config('database.default'),
+            'db_host' => config('database.connections.mysql.host'),
+        ], 500);
+    }
     }
 
     protected function handleCustomerSubscriptionCreated(array $payload)
     {
-        try {
+        
             $stripeCustomerId = $payload['data']['object']['customer'];
         $data = $payload['data']['object'];
 
@@ -98,17 +109,6 @@ class StripeWebhookController extends Controller
         }
 
         return new Response('Webhook handled', 200);
-        } catch (\Throwable $e) {
-
-        return response()->json([
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'payload' => $payload ?? null,
-            'db_default' => config('database.default'),
-            'db_host' => config('database.connections.pgsql.host'),
-        ], 500);
-    }
-        
     }
 
     protected function handleCustomerSubscriptionUpdated(array $payload)
